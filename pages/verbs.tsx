@@ -136,6 +136,7 @@ const Verbs: React.FC = () => {
 
   const handleLogicChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const targetId = event.target.value;
+    console.info(logicData)
     const { value: _value } = logicData.find(({ id }) => targetId === id);
 
     const romaji = _value[selectedWord.form][selectedWord.endingro].split("_");
@@ -205,9 +206,9 @@ const Verbs: React.FC = () => {
             fullWidth
             style={{ marginBottom: "10px" }}
           >
-            {menuItem.map((item, index) => (
-              <MenuItem key={index} value={item.value}>
-                {item.text}
+            {logicData.map((item, index) => (
+              <MenuItem key={index} value={item.id}>
+                {item.name}
               </MenuItem>
             ))}
           </Select>

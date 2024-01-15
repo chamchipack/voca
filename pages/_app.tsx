@@ -7,7 +7,6 @@ export default function AppWrapper({ Component, pageProps, router }: AppProps) {
     return (
         <div>
             <Component {...pageProps} />
-            <Register />
         </div>
     );
 }

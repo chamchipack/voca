@@ -10,21 +10,65 @@ import {
   MenuItem,
 } from "@mui/material";
 import axios from "@/config/axios/axios";
+import Register from '@/components/Register'
+import { SelectChangeEvent } from '@mui/material';
+
 
 import alphabet from "@/config/format/japanese";
 
+interface LogicValue {
+  [key: string]: {
+    [subKey: string]: string;
+  };
+}
+
+interface Logic {
+  id: string;
+  name: string;
+  value: LogicValue;
+}
+
+interface WordData {
+  japan: string;
+  korean: string;
+  roman: string;
+  japanWithoutKanji: string;
+  stemro: string;
+  stemjp: string;
+  endingro: string;
+  endingjp: string;
+  form: string;
+  exception: boolean;
+}
+
 const Verbs: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [selectedWord, setSelectedWord] = useState({ japan: "", korean: "" });
+  const [selectedWord, setSelectedWord] = useState<WordData>({
+    japan: "",
+    korean: "",
+    roman: "",
+    japanWithoutKanji: "",
+    stemro: "",
+    stemjp: "",
+    endingro: "",
+    endingjp: "",
+    form: "",
+    exception: false,
+  });
+
   const [selectedLogic, setSelectedLogic] = useState("");
-  const [wordData, setWordData] = useState([]);
-  const [logicData, setLogicData] = useState([]);
+  const [wordData, setWordData] = useState<WordData[]>([]);
+  const [logicData, setLogicData] = useState<Logic[]>([]);
   const [convert, setConvert] = useState("");
 
   const onLoadData = async () => {
     const { items } = await axios.get("/api/collections/verbs/records");
     setWordData(items);
   };
+
+  const handleDataFromChild = (value: string) => {
+    if (value) onLoadData()
+  }
 
   const onLoadLogicData = async () => {
     const { items } = await axios.get("/api/collections/verb_logic/records");
@@ -36,27 +80,42 @@ const Verbs: React.FC = () => {
     onLoadLogicData();
   }, []);
 
-  const handleOpen = (word: any) => {
-    setSelectedWord({ japan: word.japan, korean: word.korean, ...word });
+  const handleOpen = (word: WordData) => {
+    const { japan, korean, ...rest } = word
+    setSelectedWord({ japan, korean, ...rest });
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setConvert('')
+    setSelectedLogic('')
+    setSelectedWord({
+      japan: "",
+      korean: "",
+      roman: "",
+      japanWithoutKanji: "",
+      stemro: "",
+      stemjp: "",
+      endingro: "",
+      endingjp: "",
+      form: "",
+      exception: false,
+    });
   };
 
-  const handleLogicChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleLogicChange = (event: SelectChangeEvent<string>) => {
     const targetId = event.target.value;
-    console.info(logicData)
-    const { value: _value } = logicData.find(({ id }) => targetId === id);
+    const logic = logicData.find(({ id }) => targetId === id);
 
-    const romaji = _value[selectedWord.form][selectedWord.endingro].split("_");
+    if (!logic || !logic.value) return;
+    const romaji = logic.value[selectedWord.form][selectedWord.endingro].split("_");
     let result = "";
-    romaji.map((o) => {
-      Object.values(alphabet).reduce((acc, data) => {
+    romaji.map((o: string) => {
+      Object.values(alphabet).forEach(data => {
         const { jp = "" } = data.find(({ ro: _ro }) => _ro === o) || {};
         if (jp) result += jp;
-      }, "");
+      });
     });
 
     setConvert(selectedWord.stemjp + result);
@@ -66,6 +125,7 @@ const Verbs: React.FC = () => {
 
   return (
     <Container maxWidth="sm" style={{ marginTop: "20px" }}>
+      <Register onReceiveData={handleDataFromChild} />
       <Grid container spacing={2}>
         {wordData.map((word, index) => (
           <Grid item xs={6} key={index}>
@@ -117,9 +177,9 @@ const Verbs: React.FC = () => {
             fullWidth
             style={{ marginBottom: "10px" }}
           >
-            {logicData.map((item, index) => (
-              <MenuItem key={index} value={item.id}>
-                {item.name}
+            {logicData.map(({ id, name }) => (
+              <MenuItem key={id} value={id}>
+                {name}
               </MenuItem>
             ))}
           </Select>

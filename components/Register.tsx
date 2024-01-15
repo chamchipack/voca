@@ -2,16 +2,22 @@ import React, { useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
+import alphabet from "@/config/format/japanese";
 import {
     Box, Button, Container, SpeedDial, SpeedDialAction, SpeedDialIcon,
     Select, FormControl, MenuItem, TextField, InputLabel, Dialog,
     DialogTitle, DialogContent, DialogActions, FormControlLabel,
     Checkbox
 } from '@mui/material';
+import axios from "@/config/axios/axios";
 
 const actions = [
     { icon: <SaveIcon />, name: '등록', id: 'create' },
 ];
+
+interface RegisterProps {
+    onReceiveData: (value: string) => void;
+}
 
 const initialWordState = {
     korean: '',
@@ -22,7 +28,7 @@ const initialWordState = {
     exception: false,
 };
 
-export default function Register() {
+export default function Register({ onReceiveData }: RegisterProps) {
     const [open, setOpen] = useState(false);
     const [word, setWord] = useState(initialWordState);
     const [partOfSpeech, setPartOfSpeech] = useState('')
@@ -31,11 +37,41 @@ export default function Register() {
         if ('create' === value) setOpen(true);
     };
 
-    const dialogClose = () => {
+    const dialogClose = async () => {
+        const ww = Object.values(word).every(value => value !== null && value !== undefined && value !== '');
+        if (!ww) return alert('칸을 비우지마세요')
+
+        const { japan = '', roman, ...rest } = word
+        const data = {
+            japan,
+            roman,
+            stemjp: japan.slice(0, -1),
+            stemro: '',
+            endingjp: japan[japan.length - 1] || '',
+            endingro: '',
+            ...rest
+        }
+        Object.values(alphabet).forEach(val => {
+            const { ro = '' } = val.find(({ jp = '' }) => jp === japan[japan.length - 1]) || {}
+            if (ro) data.endingro = ro
+        })
+        data.stemro = roman.endsWith(data.endingro) ? roman.slice(0, -data.endingro.length) : roman;
+
+        try {
+            await axios.post("/api/collections/verbs/records", data)
+        } catch (err) {
+            return
+        }
         setOpen(false);
         // 다이얼로그가 닫힐 때 상태 초기화
         setWord(initialWordState);
+        onReceiveData('send');
     };
+
+    const dialogCancel = () => {
+        setOpen(false);
+        setWord(initialWordState);
+    }
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => { // Changed event type
         const { name, value, type, checked } = event.target;
@@ -147,7 +183,7 @@ export default function Register() {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={dialogClose}>취소</Button>
+                    <Button onClick={dialogCancel}>취소</Button>
                     <Button onClick={dialogClose}>저장</Button>
                 </DialogActions>
             </Dialog>

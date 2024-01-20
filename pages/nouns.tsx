@@ -10,22 +10,28 @@ import {
   MenuItem,
 } from "@mui/material";
 import axios from "@/config/axios/axios";
-
+import Register from '@/components/Register'
 import alphabet from "@/config/format/japanese";
 
-const wordData = [{
-    japan: "家",
-    korean:"집",
-    roman: "ie",
-}, {
-    japan: "本",
-    korean:"책",
-    roman: "hon",
-}]
+
+
 
 const Nouns: React.FC = () => {
+  const [wordData, setWordData] = useState([]);
+
+  const handleDataFromChild = (value: string) => {
+    // if (value) onLoadData()
+  };
+  const onLoadData = async () => {
+    const {items} = await axios.get("/api/collections/nouns/records");
+    setWordData(items);
+
+  };
+  onLoadData();
+
     return (
         <Container maxWidth="sm" style={{ marginTop: "20px" }}>
+          <Register onReceiveData={handleDataFromChild}/>
       <Grid container spacing={2}>
         {wordData.map((word, index) => (
           <Grid item xs={12} key={index}>

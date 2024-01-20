@@ -14,7 +14,7 @@ import axios from "@/config/axios/axios";
 const actions = [
     { icon: <SaveIcon />, name: '등록', id: 'create' },
 ];
-
+const speechType=['verb', 'noun']
 interface RegisterProps {
     onReceiveData: (value: string) => void;
 }
@@ -28,6 +28,7 @@ const initialWordState = {
     exception: false,
 };
 
+
 export default function Register({ onReceiveData }: RegisterProps) {
     const [open, setOpen] = useState(false);
     const [word, setWord] = useState(initialWordState);
@@ -38,7 +39,8 @@ export default function Register({ onReceiveData }: RegisterProps) {
     };
 
     const dialogClose = async () => {
-        const ww = Object.values(word).every(value => value !== null && value !== undefined && value !== '');
+        if(partOfSpeech === "verb"){
+            const ww = Object.values(word).every(value => value !== null && value !== undefined && value !== '');
         if (!ww) return alert('칸을 비우지마세요')
 
         const { japan = '', roman, ...rest } = word
@@ -62,10 +64,24 @@ export default function Register({ onReceiveData }: RegisterProps) {
         } catch (err) {
             return
         }
+        
+        } else {
+            
+            const {form, exception, ...rest} =word;
+            const ww = Object.values(rest).every(value => value !== null && value !== undefined && value !== '');
+            if (!ww) return alert('칸을 비우지마세요')
+
+            try {
+                await axios.post("/api/collections/nouns/records", rest)
+            } catch (err) {
+                return
+            }
+        }
         setOpen(false);
         // 다이얼로그가 닫힐 때 상태 초기화
         setWord(initialWordState);
         onReceiveData('send');
+        
     };
 
     const dialogCancel = () => {
@@ -121,7 +137,7 @@ export default function Register({ onReceiveData }: RegisterProps) {
                         </Select>
                     </FormControl>
                     {
-                        partOfSpeech === 'verb' ? <Box
+                        speechType.includes(partOfSpeech) ? <Box
                             component="form"
                             sx={{
                                 '& .MuiTextField-root': { m: 1, width: '25ch' },
@@ -161,6 +177,9 @@ export default function Register({ onReceiveData }: RegisterProps) {
                                 value={word.roman}
                                 onChange={handleInputChange}
                             />
+
+                           { partOfSpeech ==='verb' ?
+                           <Box> 
                             <TextField
                                 label="형태"
                                 variant="outlined"
@@ -178,7 +197,9 @@ export default function Register({ onReceiveData }: RegisterProps) {
                                     />
                                 }
                                 label="예외"
-                            />
+                            /> </Box>:null}
+
+
                         </Box> : null
                     }
                 </DialogContent>

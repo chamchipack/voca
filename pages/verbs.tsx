@@ -131,19 +131,23 @@ const Verbs: React.FC = () => {
           <Grid item xs={6} key={index}>
             <Card
               variant="outlined"
-              style={{ borderColor: "green", cursor: "pointer" }}
+              style={{ borderColor: "green", cursor: "pointer", height: '80px' }}
               onClick={() => handleOpen(word)}
             >
               <CardContent>
                 <Typography variant="h5" component="h2">
                   {word.japan}
                 </Typography>
-                <Typography color="textSecondary">{word.korean}</Typography>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography color="textSecondary">{word.korean}</Typography>
+                  <Typography color="textSecondary">{word.roman}</Typography>
+                </div>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
+
       <Modal
         open={open}
         onClose={handleClose}

@@ -86,7 +86,7 @@ export default function Register({ onReceiveData }: RegisterProps) {
         <div>
             <SpeedDial
                 ariaLabel="SpeedDial basic"
-                sx={{ position: 'absolute', bottom: 20, right: 15 }}
+                sx={{ position: 'fixed', bottom: 20, right: 15 }}
                 icon={<SpeedDialIcon openIcon={<EditIcon />} />}
             >
                 {actions.map((action) => (

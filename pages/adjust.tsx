@@ -14,8 +14,16 @@ import Register from "@/components/Register";
 import alphabet from "@/config/format/japanese";
 import { Box } from "@mui/system";
 
+interface Word {
+  japan: string;
+  roman: string;
+  korean: string;
+  example: string;
+  examplekorean: string;
+}
+
 const Adjust: React.FC = () => {
-  const [wordData, setWordData] = useState([]);
+  const [wordData, setWordData] = useState<Word[]>([]);
 
   const handleDataFromChild = (value: string) => {
     // if (value) onLoadData()
@@ -30,7 +38,7 @@ const Adjust: React.FC = () => {
     <Container maxWidth="sm" style={{ marginTop: "20px" }}>
       <Register onReceiveData={handleDataFromChild} />
       <Grid container spacing={2}>
-        {wordData.map((word, index) => (
+        {wordData.map((word, index: number) => (
           <Grid item xs={12} key={index}>
             <Card
               variant="outlined"

@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
 import { db, getSettings } from '../db'
-import { todayKey } from '../lib/daily'
+import { dueWordIds, todayKey } from '../lib/daily'
 import styles from './Home.module.css'
 
 /** 홈은 오늘 배정을 만들지 않고 읽기만 한다. 배정은 학습 화면을 열 때 만들어진다 */
@@ -15,6 +15,12 @@ async function loadStats() {
   const known = progress.filter((p) => p.status === 'known').length
   const learning = progress.filter((p) => p.status === 'learning').length
   const remaining = Math.max(0, total - progress.length)
+  // 아직 배정 전이면 오늘 받게 될 개수를 보여준다
+  const newTotal = today ? today.wordIds.length : Math.min(settings.dailyNewCount, remaining)
+  const reviewTotal = today?.review ? today.review.wordIds.length : (await dueWordIds(today?.wordIds)).length
+  const newDone = today?.doneIds.length ?? 0
+  const reviewDone = today?.review?.doneIds.length ?? 0
+  const touched = (n: number[] | undefined) => !!n && n.length > 0
   return {
     date: new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' }),
     total,
@@ -22,10 +28,15 @@ async function loadStats() {
     learning,
     studied: progress.length,
     remaining,
-    todayDone: today?.doneIds.length ?? 0,
-    // 아직 배정 전이면 오늘 받게 될 개수를 보여준다
-    todayTotal: today ? today.wordIds.length : Math.min(settings.dailyNewCount, remaining),
-    started: !!today && (today.doneIds.length > 0 || today.wrongIds.length > 0),
+    newDone,
+    newTotal,
+    reviewDone,
+    reviewTotal,
+    started:
+      touched(today?.doneIds) ||
+      touched(today?.wrongIds) ||
+      touched(today?.review?.doneIds) ||
+      touched(today?.review?.wrongIds),
   }
 }
 
@@ -36,8 +47,12 @@ export default function Home() {
 
   if (!stats) return null
 
-  const { date, total, known, learning, studied, remaining, todayDone, todayTotal, started } = stats
-  const todayComplete = todayTotal > 0 && todayDone >= todayTotal
+  const { date, total, known, learning, studied, remaining, newDone, newTotal, reviewDone, reviewTotal, started } =
+    stats
+  const todayDone = newDone + reviewDone
+  const todayTotal = newTotal + reviewTotal
+  const todayLeft = todayTotal - todayDone
+  const todayComplete = todayTotal > 0 && todayLeft <= 0
 
   return (
     <div className={styles.page}>
@@ -62,12 +77,12 @@ export default function Home() {
       ) : (
         <Link className={styles.hero} to="/study">
           <div className={styles.heroHead}>
-            <span>오늘의 새 단어</span>
+            <span>오늘 학습</span>
             <span className={styles.heroGlyph}>{todayComplete ? '済' : '札'}</span>
           </div>
           <div className={styles.heroCount}>
-            <span className={styles.heroNum}>{todayDone}</span>
-            <span className={styles.heroOf}>/ {todayTotal}</span>
+            <span className={styles.heroNum}>{todayComplete ? todayDone : todayLeft}</span>
+            <span className={styles.heroOf}>{todayComplete ? '단어 완료' : '단어 남음'}</span>
           </div>
           <div className={styles.heroTrack}>
             <div className={styles.heroBar} style={{ width: pct(todayDone, todayTotal) }} />
@@ -75,10 +90,8 @@ export default function Home() {
           <div className={styles.heroFoot}>
             <span>
               {todayTotal === 0
-                ? '모든 단어를 학습했어요'
-                : todayComplete
-                  ? '오늘 목표 달성!'
-                  : `${todayTotal - todayDone}개 남음`}
+                ? '오늘은 복습도 새 단어도 없어요'
+                : `복습 ${reviewDone}/${reviewTotal} · 새 단어 ${newDone}/${newTotal}`}
             </span>
             <span className={styles.heroBtn}>
               {todayComplete || todayTotal === 0 ? '학습 화면' : started ? '이어서 하기' : '시작하기'}

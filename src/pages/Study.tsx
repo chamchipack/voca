@@ -2,15 +2,20 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from '../db'
-import { addMoreToday, answer, dropFromToday, ensureToday, hasMoreNewWords, todayKey } from '../lib/daily'
-import type { DailySession, Word } from '../types'
+import { addMoreToday, answer, deckOf, dropFromToday, ensureToday, hasMoreNewWords, todayKey } from '../lib/daily'
+import { reviewLabel, tomorrowStart } from '../lib/srs'
+import type { DailySession, DeckKind, Word } from '../types'
 import styles from './Study.module.css'
+
+const KIND_LABEL: Record<DeckKind, string> = { review: '복습', new: '새 단어' }
 
 export default function Study() {
   const date = todayKey()
   const [ready, setReady] = useState(false)
   // 같은 카드가 연속으로 나와도(남은 카드가 1장일 때) 새 카드로 다시 그리기 위한 카운터
   const [answered, setAnswered] = useState(0)
+  // 사용자가 탭을 고르기 전에는 복습이 남아 있으면 복습부터 보여준다
+  const [chosen, setChosen] = useState<DeckKind | null>(null)
 
   // 오늘 배정이 없으면 만든다. 이후 화면은 DB를 구독해서 갱신된다
   useEffect(() => {
@@ -19,7 +24,9 @@ export default function Study() {
 
   const session = useLiveQuery(() => db.daily.get(date), [date])
   const wordCount = useLiveQuery(() => db.words.count())
-  const currentId = session?.queue[0]
+  const kind: DeckKind = chosen ?? (session?.review?.queue.length ? 'review' : 'new')
+  const deck = session && deckOf(session, kind)
+  const currentId = deck?.queue[0]
   const current = useLiveQuery(
     async () => (currentId == null ? null : ((await db.words.get(currentId)) ?? 'missing')),
     [currentId],
@@ -30,55 +37,84 @@ export default function Study() {
     if (current === 'missing' && currentId != null) dropFromToday(date, currentId)
   }, [current, currentId, date])
 
-  if (!ready || !session || wordCount === undefined) return null
+  if (!ready || !session || !deck || wordCount === undefined) return null
+
+  const shell = (children?: ReactNode) => (
+    <Shell session={session} kind={kind} onKind={setChosen}>
+      {children}
+    </Shell>
+  )
 
   if (wordCount === 0) {
-    return (
-      <Shell session={session}>
-        <div className={styles.doneCard}>
-          <span className={styles.doneGlyph}>空</span>
-          <span className={styles.doneTitle}>아직 단어가 없어요</span>
-          <Link className={styles.primary} to="/settings/import">CSV 가져오기</Link>
-        </div>
-      </Shell>
+    return shell(
+      <div className={styles.doneCard}>
+        <span className={styles.doneGlyph}>空</span>
+        <span className={styles.doneTitle}>아직 단어가 없어요</span>
+        <Link className={styles.primary} to="/settings/import">CSV 가져오기</Link>
+      </div>,
     )
   }
 
-  if (session.queue.length === 0) {
-    return (
-      <Shell session={session}>
-        <Done session={session} />
-      </Shell>
+  if (deck.queue.length === 0) {
+    return shell(
+      kind === 'new' ? (
+        <NewDone session={session} onReview={() => setChosen('review')} />
+      ) : (
+        <ReviewDone session={session} onNew={() => setChosen('new')} />
+      ),
     )
   }
 
-  if (!current || current === 'missing') return <Shell session={session} />
+  if (!current || current === 'missing') return shell()
 
-  return (
-    <Shell session={session}>
-      <Flashcard
-        key={`${current.id}-${answered}`}
-        word={current}
-        retry={session.wrongIds.includes(current.id!)}
-        onAnswer={async (known) => {
-          await answer(date, current.id!, known)
-          setAnswered((n) => n + 1)
-        }}
-      />
-    </Shell>
+  return shell(
+    <Flashcard
+      key={`${kind}-${current.id}-${answered}`}
+      word={current}
+      tag={deck.wrongIds.includes(current.id!) ? '다시' : KIND_LABEL[kind]}
+      onAnswer={async (known) => {
+        await answer(date, kind, current.id!, known)
+        setAnswered((n) => n + 1)
+      }}
+    />,
   )
 }
 
-function Shell({ session, children }: { session: DailySession; children?: ReactNode }) {
-  const total = session.wordIds.length
-  const done = session.doneIds.length
+function Shell({
+  session,
+  kind,
+  onKind,
+  children,
+}: {
+  session: DailySession
+  kind: DeckKind
+  onKind: (k: DeckKind) => void
+  children?: ReactNode
+}) {
+  const deck = deckOf(session, kind)
+  const total = deck?.wordIds.length ?? 0
+  const done = deck?.doneIds.length ?? 0
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>오늘의 새 단어</h1>
-        <span className={styles.progressLabel}>
-          {done} / {total}
-        </span>
+      <h1 className={styles.title}>학습</h1>
+      <div className={styles.tabs} role="tablist">
+        {(['review', 'new'] as const).map((k) => {
+          const d = deckOf(session, k)
+          return (
+            <button
+              key={k}
+              role="tab"
+              aria-selected={kind === k}
+              className={kind === k ? styles.tabOn : ''}
+              onClick={() => onKind(k)}
+            >
+              {KIND_LABEL[k]}
+              <span className={styles.tabCount}>
+                {d?.doneIds.length ?? 0}/{d?.wordIds.length ?? 0}
+              </span>
+            </button>
+          )
+        })}
       </div>
       <div className={styles.track}>
         <div className={styles.bar} style={{ width: total ? `${(done / total) * 100}%` : '0%' }} />
@@ -88,7 +124,7 @@ function Shell({ session, children }: { session: DailySession; children?: ReactN
   )
 }
 
-function Flashcard({ word, retry, onAnswer }: { word: Word; retry: boolean; onAnswer: (known: boolean) => Promise<void> }) {
+function Flashcard({ word, tag, onAnswer }: { word: Word; tag: string; onAnswer: (known: boolean) => Promise<void> }) {
   const [flipped, setFlipped] = useState(false)
   const [busy, setBusy] = useState(false)
 
@@ -122,7 +158,7 @@ function Flashcard({ word, retry, onAnswer }: { word: Word; retry: boolean; onAn
       >
         <div className={`${styles.card} ${flipped ? styles.flipped : ''}`}>
           <div className={`${styles.face} ${styles.front}`}>
-            <span className={styles.tag}>{retry ? '다시' : '새 단어'}</span>
+            <span className={styles.tag}>{tag}</span>
             <span className={`${styles.frontWord} ${size}`}>{word.word}</span>
             <span className={styles.tapHint}>탭해서 뒤집기</span>
           </div>
@@ -152,10 +188,14 @@ function Flashcard({ word, retry, onAnswer }: { word: Word; retry: boolean; onAn
   )
 }
 
-function Done({ session }: { session: DailySession }) {
+function NewDone({ session, onReview }: { session: DailySession; onReview: () => void }) {
   const hasMore = useLiveQuery(() => hasMoreNewWords(session), [session])
   const [busy, setBusy] = useState(false)
   const firstTry = session.doneIds.filter((id) => !session.wrongIds.includes(id)).length
+  const reviewLeft = session.review?.queue.length ?? 0
+  const reviewButton = reviewLeft > 0 && (
+    <button className={styles.primary} onClick={onReview}>남은 복습 {reviewLeft}개 하기</button>
+  )
 
   if (session.wordIds.length === 0) {
     return (
@@ -163,6 +203,7 @@ function Done({ session }: { session: DailySession }) {
         <span className={styles.doneGlyph}>全</span>
         <span className={styles.doneTitle}>모든 단어를 학습했어요</span>
         <span className={styles.doneSub}>새 단어를 더 공부하려면 CSV로 단어를 추가하세요.</span>
+        {reviewButton}
       </div>
     )
   }
@@ -176,13 +217,40 @@ function Done({ session }: { session: DailySession }) {
   return (
     <div className={styles.doneCard}>
       <span className={styles.doneGlyph}>済</span>
-      <span className={styles.doneTitle}>오늘 학습 끝</span>
+      <span className={styles.doneTitle}>오늘 새 단어 끝</span>
       <span className={styles.doneSub}>
-        {session.doneIds.length}개 중 {firstTry}개는 한 번에 알았어요.
-        {session.wrongIds.length > 0 && ` 헷갈린 ${session.wrongIds.length}개는 '학습 중'으로 남겨뒀어요.`}
+        {session.doneIds.length}개 중 {firstTry}개는 한 번에 알았어요. 모두 내일 복습에 나와요.
       </span>
+      {reviewButton}
       {hasMore && (
-        <button className={styles.primary} disabled={busy} onClick={more}>새 단어 더 하기</button>
+        <button className={reviewLeft > 0 ? styles.secondary : styles.primary} disabled={busy} onClick={more}>
+          새 단어 더 하기
+        </button>
+      )}
+    </div>
+  )
+}
+
+function ReviewDone({ session, onNew }: { session: DailySession; onNew: () => void }) {
+  const review = session.review!
+  const nextDue = useLiveQuery(async () => {
+    const p = await db.progress.where('nextReviewAt').aboveOrEqual(tomorrowStart()).first()
+    return p?.nextReviewAt
+  })
+  const newLeft = session.queue.length
+  const firstTry = review.doneIds.filter((id) => !review.wrongIds.includes(id)).length
+
+  return (
+    <div className={styles.doneCard}>
+      <span className={styles.doneGlyph}>{review.wordIds.length ? '済' : '休'}</span>
+      <span className={styles.doneTitle}>{review.wordIds.length ? '오늘 복습 끝' : '오늘 복습할 단어가 없어요'}</span>
+      <span className={styles.doneSub}>
+        {review.wordIds.length > 0 &&
+          `${review.doneIds.length}개 중 ${firstTry}개를 기억했어요. 틀린 ${review.wrongIds.length}개는 내일 다시 나와요. `}
+        {nextDue && `다음 복습: ${reviewLabel(nextDue)}`}
+      </span>
+      {newLeft > 0 && (
+        <button className={styles.primary} onClick={onNew}>새 단어 {newLeft}개 하기</button>
       )}
     </div>
   )

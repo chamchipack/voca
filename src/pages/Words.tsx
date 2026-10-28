@@ -1,10 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Sheet from '../components/Sheet'
 import { db } from '../db'
 import { deleteWord, updateWord, type WordDraft } from '../lib/words'
-import { STATUS_LABEL, type Word, type WordStatus } from '../types'
+import { reviewLabel } from '../lib/srs'
+import { STATUS_LABEL, type Progress, type Word, type WordStatus } from '../types'
 import styles from './Words.module.css'
 
 type Filter = 'all' | WordStatus
@@ -27,11 +28,11 @@ export default function Words() {
   const [editing, setEditing] = useState(false)
   const deferredQuery = useDeferredValue(query)
 
-  const statusOf = useMemo(() => {
-    const map = new Map<number, WordStatus>()
-    for (const p of progress ?? []) map.set(p.wordId, p.status)
-    return (id: number) => map.get(id) ?? 'new'
-  }, [progress])
+  const progressById = useMemo(() => new Map((progress ?? []).map((p) => [p.wordId, p])), [progress])
+  const statusOf = useCallback(
+    (id: number): WordStatus => progressById.get(id)?.status ?? 'new',
+    [progressById],
+  )
 
   const counts = useMemo(() => {
     const c: Record<Filter, number> = { all: 0, new: 0, learning: 0, known: 0 }
@@ -131,7 +132,7 @@ export default function Words() {
           ) : (
             <WordDetail
               word={detail}
-              status={statusOf(detail.id!)}
+              progress={progressById.get(detail.id!)}
               onEdit={() => setEditing(true)}
               onDeleted={closeSheet}
             />
@@ -153,15 +154,16 @@ function WordText({ word, className }: { word: Word; className: string }) {
 
 function WordDetail({
   word,
-  status,
+  progress,
   onEdit,
   onDeleted,
 }: {
   word: Word
-  status: WordStatus
+  progress?: Progress
   onEdit: () => void
   onDeleted: () => void
 }) {
+  const status = progress?.status ?? 'new'
   async function remove() {
     if (!confirm(`'${word.word}'을(를) 삭제할까요? 학습 기록도 함께 삭제됩니다.`)) return
     await deleteWord(word.id!)
@@ -170,7 +172,14 @@ function WordDetail({
 
   return (
     <>
-      <span className={`${styles.status} ${styles[status]}`}>{STATUS_LABEL[status]}</span>
+      <div className={styles.detailMeta}>
+        <span className={`${styles.status} ${styles[status]}`}>{STATUS_LABEL[status]}</span>
+        {progress?.nextReviewAt !== undefined && (
+          <span>
+            다음 복습 {reviewLabel(progress.nextReviewAt)} · 주기 {progress.interval}일
+          </span>
+        )}
+      </div>
       <WordText word={word} className={styles.detailWord} />
       <div className={styles.detailMeaning}>{word.meaning}</div>
       {word.example && <div className={`${styles.box} ${styles.example}`}>{word.example}</div>}

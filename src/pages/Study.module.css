@@ -6,12 +6,6 @@
   margin: 0 auto;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
 .title {
   margin: 0;
   font-size: 30px;
@@ -19,10 +13,37 @@
   letter-spacing: -0.03em;
 }
 
-.progressLabel {
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.tabs button {
+  height: 44px;
+  border-radius: 999px;
+  border: 0;
+  background: none;
+  color: var(--text-2);
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tabs .tabOn {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.tabCount {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
 }
 
 .track {
@@ -205,6 +226,18 @@
 .primary {
   background: var(--accent);
   color: var(--on-accent);
+}
+
+.secondary {
+  height: 54px;
+  border-radius: 18px;
+  border: 0;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  max-width: 280px;
 }
 
 .reveal {

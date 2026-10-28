@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { todayKey } from './daily'
+import { withSrsDefaults } from './srs'
 import type { DailySession, Progress, Settings, Word } from '../types'
 
 const APP = 'voca'
@@ -48,7 +49,12 @@ export async function readBackup(file: File): Promise<Backup> {
     throw new Error('이 앱의 백업 파일이 아닙니다.')
   }
   if ((b.version ?? 0) > VERSION) throw new Error('더 새 버전의 앱에서 만든 백업입니다.')
-  return { ...b, settings: b.settings ?? [], daily: b.daily ?? [] } as Backup
+  return {
+    ...b,
+    progress: b.progress.map(withSrsDefaults),
+    settings: b.settings ?? [],
+    daily: b.daily ?? [],
+  } as Backup
 }
 
 /** 현재 데이터를 모두 지우고 백업 내용으로 바꾼다 */

@@ -1,0 +1,241 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 720px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.brand {
+  font: 500 13px var(--font-jp);
+}
+
+.title {
+  margin: 2px 0 4px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* 오늘 카드 */
+.hero {
+  background: var(--card-back-bg);
+  color: var(--card-back-fg);
+  border-radius: 34px;
+  padding: 24px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-decoration: none;
+}
+
+[data-theme='mono'] .hero {
+  border-radius: 14px;
+}
+
+.heroHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--card-back-sub);
+}
+
+.heroGlyph {
+  font: 700 30px var(--font-jp);
+  color: var(--card-back-fg);
+}
+
+[data-theme='mono'] .heroGlyph {
+  color: var(--card-back-meaning);
+}
+
+.heroBody {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.heroCount {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.heroNum {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.heroOf {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--card-back-sub);
+}
+
+.heroTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 20%, transparent);
+  overflow: hidden;
+  margin-top: -6px;
+}
+
+.heroBar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--card-back-fg);
+  transition: width 0.3s;
+}
+
+[data-theme='mono'] .heroBar {
+  background: var(--card-back-meaning);
+}
+
+.heroFoot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--card-back-sub);
+}
+
+.heroBtn {
+  flex: none;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--hero-btn-bg);
+  color: var(--hero-btn-fg);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 전체 진행 */
+.overall {
+  background: var(--surface);
+  border-radius: 28px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+[data-theme='mono'] .overall,
+[data-theme='mono'] .tile {
+  border-radius: 12px;
+}
+
+.overallHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.overallPct {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stack {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--track);
+  overflow: hidden;
+  display: flex;
+}
+
+.stackKnown,
+.dotKnown {
+  background: var(--accent);
+}
+
+.stackLearning,
+.dotLearning {
+  background: var(--accent-soft);
+}
+
+[data-theme='soft'] .stackLearning,
+[data-theme='soft'] .dotLearning {
+  background: oklch(0.8 0.08 272);
+}
+
+.dotNew {
+  background: var(--track);
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+/* 타일 */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  background: var(--surface);
+  border-radius: 28px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tileLabel {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.tileValue {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.tileNum {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.tileOf {
+  font-size: 14px;
+  color: var(--text-3);
+}

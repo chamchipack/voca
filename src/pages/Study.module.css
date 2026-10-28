@@ -1,0 +1,275 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.progressLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.study {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 플래시카드 */
+.scene {
+  perspective: 1400px;
+  height: min(420px, 56dvh);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: inherit;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-card);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.front {
+  background: var(--surface);
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--card-shadow);
+}
+
+.back {
+  transform: rotateY(180deg);
+  background: var(--card-back-bg);
+  color: var(--card-back-fg);
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 28px;
+  overflow-y: auto;
+}
+
+.tag {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.frontWord {
+  font-family: var(--font-jp);
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  word-break: break-all;
+}
+
+.lg {
+  font-size: 84px;
+}
+
+.md {
+  font-size: 60px;
+}
+
+.sm {
+  font-size: 40px;
+}
+
+.tapHint {
+  position: absolute;
+  bottom: 22px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.backWord {
+  font: 700 48px/1.4 var(--font-jp);
+  word-break: break-all;
+}
+
+.backWord rt {
+  font: 500 15px var(--font-jp);
+  color: var(--card-back-sub);
+  letter-spacing: 0.08em;
+}
+
+.backMeaning {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--card-back-meaning);
+}
+
+.divider {
+  height: 1px;
+  background: currentColor;
+  opacity: 0.15;
+  margin: 18px 0 10px;
+}
+
+.backExample {
+  font: 400 16px/1.6 var(--font-jp);
+}
+
+.backMemo {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--card-back-sub);
+  white-space: pre-wrap;
+}
+
+/* 버튼 */
+.grades {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.again,
+.good,
+.reveal,
+.primary {
+  height: 64px;
+  border-radius: 18px;
+  border: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+[data-theme='mono'] .again,
+[data-theme='mono'] .good,
+[data-theme='mono'] .reveal {
+  border-radius: 10px;
+}
+
+.again {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.good,
+.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.reveal {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+[data-theme='mono'] .reveal {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.again:disabled,
+.good:disabled,
+.primary:disabled {
+  opacity: 0.5;
+}
+
+.keys {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* 키보드가 없는 터치 기기에서는 단축키 안내를 숨긴다 */
+@media (hover: none) {
+  .keys {
+    display: none;
+  }
+}
+
+/* 완료 */
+.doneCard {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: 56px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.doneGlyph {
+  font: 700 48px var(--font-jp);
+  color: var(--accent);
+}
+
+.doneTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.doneSub {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.doneCard .primary {
+  margin-top: 12px;
+  width: 100%;
+  max-width: 280px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}

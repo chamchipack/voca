@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<script src="vocab-core.js"></script>
+<style>body{margin:0}*{box-sizing:border-box}a{color:#f3f1ec}a:hover{color:oklch(0.88 0.19 125)}button{font-family:inherit;cursor:pointer}input{font-family:inherit}</style>
+</helmet>
+<div style="height:100vh;max-height:100%;position:relative;overflow:hidden;background:#0e0e0d;color:#f3f1ec;font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif;-webkit-font-smoothing:antialiased">
+<div style="height:100%;overflow-y:auto">
+<div style="max-width:980px;margin:0 auto;padding:28px 20px 128px">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:13px;color:#a19d95">{{ today }}</span>
+    <span style="font:500 13px 'Zen Kaku Gothic New',sans-serif;color:#a19d95">KOTOBA — 言葉</span>
+  </div>
+  <h1 style="margin:2px 0 4px;font-size:40px;font-weight:800;letter-spacing:-.04em;text-transform:uppercase">오늘도 조금씩</h1>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px">
+    <button onClick="{{ goReview }}" style="text-align:left;border:0;background:#f3f1ec;color:#0e0e0d;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:18px;min-height:200px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;width:100%">
+        <span style="font-size:14px;color:rgba(14,14,13,.65)">오늘 복습</span>
+        <span style="font:700 30px 'Zen Kaku Gothic New',sans-serif;color:oklch(0.45 0.14 130)">札</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:56px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ queueCount }}</span><span style="font-size:15px;color:rgba(14,14,13,.6)">단어</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+        <span style="font-size:13px;color:rgba(14,14,13,.6)">복습 {{ dueCount }} · 새 단어 {{ newCount }}</span>
+        <span style="height:40px;padding:0 18px;border-radius:999px;background:oklch(0.88 0.19 125);display:flex;align-items:center;font-size:14px;font-weight:600">시작하기</span>
+      </div>
+    </button>
+    <div onClick="{{ wodOpen }}" style="background:#1a1a18;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:6px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;color:#a19d95">오늘의 단어</span>
+        <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;background:oklch(0.3 0.06 125);color:oklch(0.88 0.19 125)">{{ wod.lvl }}</span>
+      </div>
+      <ruby style="font:700 52px/1.3 'Zen Kaku Gothic New',sans-serif;margin-top:10px;ruby-position:over">{{ wod.kanji }}<sc-if value="{{ showFurigana }}" hint-placeholder-val="{{ true }}"><rt style="font:500 14px 'Zen Kaku Gothic New',sans-serif;color:#a19d95;letter-spacing:.08em">{{ wod.furi }}</rt></sc-if></ruby>
+      <div style="font-size:18px;font-weight:600">{{ wod.ko }}</div>
+      <div style="font:400 14px/1.6 'Zen Kaku Gothic New',sans-serif;color:#c9c5bd;margin-top:8px">{{ wod.ex }}</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+    <div style="background:#1a1a18;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:13px;color:#a19d95">연속 학습</span>
+      <div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:30px;font-weight:700;letter-spacing:-.03em">{{ streak }}</span><span style="font-size:14px;color:#75716a">일</span></div>
+    </div>
+    <button onClick="{{ goStats }}" style="text-align:left;border:0;background:#1a1a18;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;color:#f3f1ec">
+      <span style="font-size:13px;color:#a19d95">마스터</span>
+      <div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:30px;font-weight:700;letter-spacing:-.03em">{{ masteredCount }}</span><span style="font-size:14px;color:#75716a">/ {{ totalWords }}</span></div>
+      <div style="width:100%;height:5px;border-radius:999px;background:#262624;overflow:hidden"><div style="height:100%;background:oklch(0.88 0.19 125);border-radius:999px;width:{{ masteredPct }}"></div></div>
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isList }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-.03em">단어장</h1>
+    <button onClick="{{ openAdd }}" style="height:40px;padding:0 16px;border-radius:999px;border:0;background:#f3f1ec;color:#0e0e0d;font-size:14px;font-weight:600">+ 단어 추가</button>
+  </div>
+  <input value="{{ q }}" onChange="{{ onQuery }}" placeholder="한자, 읽기, 뜻으로 검색" style="width:100%;height:50px;border-radius:10px;border:0;background:#1a1a18;padding:0 18px;font-size:15px;color:#f3f1ec;outline:none">
+  <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px">
+    <sc-for list="{{ chips }}" as="c" hint-placeholder-count="7">
+      <button onClick="{{ c.onClick }}" style="flex:none;height:36px;padding:0 15px;border-radius:999px;border:0;font-size:13px;font-weight:600;background:{{ c.bg }};color:{{ c.fg }}">{{ c.label }}</button>
+    </sc-for>
+  </div>
+  <span style="font-size:13px;color:#75716a">{{ listCount }}개 단어</span>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,156px),1fr));gap:10px">
+    <sc-for list="{{ items }}" as="w" hint-placeholder-count="8">
+      <div onClick="{{ w.onOpen }}" style="background:#1a1a18;border-radius:12px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:transform .15s" style-hover="transform:translateY(-2px)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:600;color:#75716a">{{ w.lvl }}</span>
+          <button onClick="{{ w.onFav }}" style="width:32px;height:32px;margin:-6px -8px -6px 0;border:0;background:transparent;font-size:15px;color:{{ w.starColor }}" aria-label="즐겨찾기">{{ w.star }}</button>
+        </div>
+        <ruby style="font:700 28px/1.4 'Zen Kaku Gothic New',sans-serif;margin-top:4px">{{ w.kanji }}<sc-if value="{{ showFurigana }}" hint-placeholder-val="{{ true }}"><rt style="font:400 11px 'Zen Kaku Gothic New',sans-serif;color:#a19d95">{{ w.furi }}</rt></sc-if></ruby>
+        <span style="font-size:14px;font-weight:500;color:#dedad2">{{ w.ko }}</span>
+        <span style="font-size:9px;letter-spacing:2px;color:oklch(0.88 0.19 125);margin-top:6px">{{ w.dots }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ listEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:48px 20px;text-align:center;font-size:14px;color:#75716a">검색 결과가 없어요</div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:16px;max-width:520px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-.03em">복습</h1>
+    <span style="font-size:13px;color:#a19d95">{{ remainingLabel }}</span>
+  </div>
+  <div style="height:4px;border-radius:999px;background:#262624;overflow:hidden"><div style="height:100%;background:#f3f1ec;border-radius:999px;transition:width .3s;width:{{ reviewPct }}"></div></div>
+  <sc-if value="{{ hasQueue }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div onClick="{{ flip }}" style="perspective:1400px;height:420px;cursor:pointer">
+        <div style="position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1);transform:{{ cardTransform }}">
+          <div style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#1a1a18;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)">
+            <div style="position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between">
+              <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;background:oklch(0.3 0.06 125);color:oklch(0.88 0.19 125)">{{ cardTag }}</span>
+              <span style="font-size:11px;font-weight:600;color:#75716a">{{ card.lvl }}</span>
+            </div>
+            <div style="font:700 84px/1.15 'Zen Kaku Gothic New',sans-serif;text-align:center">{{ card.kanji }}</div>
+            <span style="position:absolute;bottom:22px;font-size:12px;color:#75716a">탭해서 뒤집기</span>
+          </div>
+          <div style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);background:#f3f1ec;color:#0e0e0d;border-radius:14px;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:32px 28px">
+            <ruby style="font:700 48px/1.4 'Zen Kaku Gothic New',sans-serif">{{ card.kanji }}<rt style="font:500 15px 'Zen Kaku Gothic New',sans-serif;color:rgba(14,14,13,.75);letter-spacing:.08em">{{ card.furi }}</rt></ruby>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-.02em;color:oklch(0.42 0.14 130)">{{ card.ko }}</div>
+            <div style="height:1px;background:rgba(14,14,13,.12);margin:18px 0 10px"></div>
+            <div style="font:400 16px/1.6 'Zen Kaku Gothic New',sans-serif">{{ card.ex }}</div>
+            <div style="font-size:13px;color:rgba(14,14,13,.6)">{{ card.exKo }}</div>
+            <button onClick="{{ cardSpeak }}" style="position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:999px;border:0;background:rgba(14,14,13,.1);color:#0e0e0d;font-size:16px" aria-label="발음 듣기">♪</button>
+          </div>
+        </div>
+      </div>
+      <sc-if value="{{ flipped }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <button onClick="{{ gradeAgain }}" style="height:64px;border-radius:10px;border:0;background:#1a1a18;color:#f3f1ec;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:15px;font-weight:600">모르겠어요</span><span style="font-size:11px;color:#75716a">{{ ivAgain }}</span></button>
+          <button onClick="{{ gradeHard }}" style="height:64px;border-radius:10px;border:0;background:#2e2e2b;color:#f3f1ec;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:15px;font-weight:600">애매해요</span><span style="font-size:11px;color:#a19d95">{{ ivHard }}</span></button>
+          <button onClick="{{ gradeGood }}" style="height:64px;border-radius:10px;border:0;background:oklch(0.88 0.19 125);color:#0e0e0d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:15px;font-weight:600">알아요</span><span style="font-size:11px;color:rgba(14,14,13,.8)">{{ ivGood }}</span></button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notFlipped }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ flip }}" style="height:64px;border-radius:10px;border:0;background:#f3f1ec;color:#0e0e0d;font-size:15px;font-weight:600">정답 보기</button>
+      </sc-if>
+      <div style="text-align:center;font-size:12px;color:#75716a">Space 뒤집기 · 1 / 2 / 3 평가</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noQueue }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#1a1a18;border-radius:14px;padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+      <span style="font:700 48px 'Zen Kaku Gothic New',sans-serif;color:oklch(0.88 0.19 125)">済</span>
+      <span style="font-size:20px;font-weight:700">오늘 복습 끝</span>
+      <span style="font-size:14px;color:#a19d95">{{ nextDueLabel }}</span>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:14px">
+  <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-.03em">통계</h1>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">
+    <div style="background:#1a1a18;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#a19d95">연속 학습</span><span style="font-size:28px;font-weight:700;letter-spacing:-.03em">{{ streak }}일</span></div>
+    <div style="background:#1a1a18;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#a19d95">학습한 단어</span><span style="font-size:28px;font-weight:700;letter-spacing:-.03em">{{ learnedCount }}</span></div>
+    <div style="background:#1a1a18;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#a19d95">마스터</span><span style="font-size:28px;font-weight:700;letter-spacing:-.03em">{{ masteredCount }}</span></div>
+    <div style="background:#1a1a18;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#a19d95">오늘 복습</span><span style="font-size:28px;font-weight:700;letter-spacing:-.03em">{{ reviewsToday }}</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px">
+    <div style="background:#1a1a18;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:600">최근 7일</span><span style="font-size:13px;color:#75716a">{{ weekTotal }}회 복습</span></div>
+      <div style="display:flex;align-items:flex-end;gap:10px;height:140px">
+        <sc-for list="{{ weekBars }}" as="b" hint-placeholder-count="7">
+          <div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#75716a">{{ b.n }}</span>
+            <div style="width:100%;max-width:32px;border-radius:8px;transition:height .4s;background:{{ b.bg }};height:{{ b.h }}"></div>
+            <span style="font-size:12px;color:#a19d95">{{ b.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="background:#1a1a18;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:600">레벨별 진도</span><span style="font-size:12px;color:#75716a">진한 색 = 마스터</span></div>
+      <sc-for list="{{ levels }}" as="l" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:36px 1fr 32px;align-items:center;gap:12px">
+          <span style="font-size:13px;font-weight:600">{{ l.lvl }}</span>
+          <div style="position:relative;height:10px;border-radius:999px;background:#262624;overflow:hidden">
+            <div style="position:absolute;inset:0 auto 0 0;border-radius:999px;background:oklch(0.45 0.1 125);width:{{ l.lPct }}"></div>
+            <div style="position:absolute;inset:0 auto 0 0;border-radius:999px;background:oklch(0.88 0.19 125);width:{{ l.mPct }}"></div>
+          </div>
+          <span style="font-size:12px;color:#75716a;text-align:right">{{ l.count }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+<nav style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:999px;background:rgba(30,30,28,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 12px 30px -10px rgba(0,0,0,.35);z-index:10">
+  <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+    <button onClick="{{ n.onClick }}" style="height:48px;padding:0 15px;border-radius:999px;border:0;display:flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;background:{{ n.bg }};color:{{ n.fg }}">
+      <span style="font:700 16px 'Zen Kaku Gothic New',sans-serif">{{ n.glyph }}</span><span style="font-size:13px;font-weight:600">{{ n.label }}</span>
+    </button>
+  </sc-for>
+</nav>
+
+<sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDetail }}" style="position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:20;display:flex;justify-content:center;align-items:flex-end">
+    <div onClick="{{ stop }}" style="width:100%;max-width:520px;background:#1a1a18;border-radius:10px 16px 0 0;padding:14px 24px 32px;display:flex;flex-direction:column;gap:6px">
+      <div style="width:40px;height:5px;border-radius:999px;background:#3a3a37;align-self:center;margin-bottom:12px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;background:oklch(0.3 0.06 125);color:oklch(0.88 0.19 125)">{{ dw.lvl }}</span>
+          <span style="font-size:12px;color:#75716a">{{ dwBoxLabel }} · {{ dwNext }}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onClick="{{ dwSpeak }}" style="width:44px;height:44px;border-radius:999px;border:0;background:#262624;font-size:15px;color:#f3f1ec" aria-label="발음 듣기">♪</button>
+          <button onClick="{{ dwFav }}" style="width:44px;height:44px;border-radius:999px;border:0;background:#262624;font-size:16px;color:{{ dw.starColor }}" aria-label="즐겨찾기">{{ dw.star }}</button>
+        </div>
+      </div>
+      <ruby style="font:700 56px/1.4 'Zen Kaku Gothic New',sans-serif;margin-top:8px">{{ dw.kanji }}<rt style="font:500 15px 'Zen Kaku Gothic New',sans-serif;color:#a19d95;letter-spacing:.08em">{{ dw.furi }}</rt></ruby>
+      <div style="font-size:20px;font-weight:600">{{ dw.ko }}</div>
+      <div style="background:#262624;border-radius:10px;padding:16px 18px;margin-top:12px;display:flex;flex-direction:column;gap:4px">
+        <span style="font:400 15px/1.6 'Zen Kaku Gothic New',sans-serif">{{ dw.ex }}</span>
+        <span style="font-size:13px;color:#a19d95">{{ dw.exKo }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+        <button onClick="{{ dwDelete }}" style="height:50px;border-radius:10px;border:0;background:#262624;color:oklch(0.88 0.19 125);font-size:14px;font-weight:600">삭제</button>
+        <button onClick="{{ dwEdit }}" style="height:50px;border-radius:10px;border:0;background:#f3f1ec;color:#0e0e0d;font-size:14px;font-weight:600">편집</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ editorOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeEditor }}" style="position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:30;display:flex;justify-content:center;align-items:flex-end">
+    <div onClick="{{ stop }}" style="width:100%;max-width:520px;max-height:92%;overflow-y:auto;background:#1a1a18;border-radius:10px 16px 0 0;padding:22px 24px 28px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em">{{ editorTitle }}</span>
+        <button onClick="{{ closeEditor }}" style="width:40px;height:40px;border-radius:999px;border:0;background:#262624;font-size:16px;color:#f3f1ec" aria-label="닫기">✕</button>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#a19d95">한자<input value="{{ draft.kanji }}" onChange="{{ setKanji }}" placeholder="例: 木漏れ日" style="height:50px;border-radius:14px;border:0;background:#262624;padding:0 16px;font:500 18px 'Zen Kaku Gothic New',sans-serif;color:#f3f1ec;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#a19d95">읽기 (필수)<input value="{{ draft.kana }}" onChange="{{ setKana }}" placeholder="こもれび" style="height:50px;border-radius:14px;border:0;background:#262624;padding:0 16px;font:400 16px 'Zen Kaku Gothic New',sans-serif;color:#f3f1ec;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#a19d95">뜻 (필수)<input value="{{ draft.ko }}" onChange="{{ setKo }}" placeholder="나뭇잎 사이로 비치는 햇살" style="height:50px;border-radius:14px;border:0;background:#262624;padding:0 16px;font-size:15px;color:#f3f1ec;outline:none"></label>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#a19d95">레벨
+        <div style="display:flex;gap:6px"><sc-for list="{{ lvlChips }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.onClick }}" style="flex:1;height:40px;border-radius:12px;border:0;font-size:13px;font-weight:600;background:{{ c.bg }};color:{{ c.fg }}">{{ c.label }}</button></sc-for></div>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#a19d95">예문<input value="{{ draft.ex }}" onChange="{{ setEx }}" placeholder="木漏れ日の中を散歩した。" style="height:50px;border-radius:14px;border:0;background:#262624;padding:0 16px;font:400 15px 'Zen Kaku Gothic New',sans-serif;color:#f3f1ec;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#a19d95">예문 해석<input value="{{ draft.exKo }}" onChange="{{ setExKo }}" placeholder="나뭇잎 사이 햇살 속을 산책했다." style="height:50px;border-radius:14px;border:0;background:#262624;padding:0 16px;font-size:15px;color:#f3f1ec;outline:none"></label>
+      <button onClick="{{ saveDraft }}" style="margin-top:6px;height:54px;border-radius:10px;border:0;background:oklch(0.88 0.19 125);color:#0e0e0d;font-size:15px;font-weight:600;opacity:{{ saveOp }}">저장</button>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showFurigana&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;keys&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const T={navOnBg:'#f3f1ec',navOnFg:'#0e0e0d',navOffBg:'transparent',navOffFg:'rgba(243,241,236,.6)',chipOnBg:'oklch(0.88 0.19 125)',chipOnFg:'#0e0e0d',chipOffBg:'#1a1a18',chipOffFg:'#c9c5bd',star:'oklch(0.88 0.19 125)',starOff:'#4a4843',bar:'#f3f1ec',barToday:'oklch(0.88 0.19 125)',barEmpty:'#262624'};
+class Component extends DCLogic {
+  componentDidMount(){const go=()=>{if(window.VocabCore){this.core=window.VocabCore.attach(this);}else this._t=setTimeout(go,30);};go();}
+  componentWillUnmount(){clearTimeout(this._t);this._off&&this._off();}
+  renderVals(){return this.core?this.core.vals(T):{};}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+.shell {
+  min-height: 100dvh;
+}
+
+.main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 20px 128px;
+}
+
+/* 휴대폰: 하단 플로팅 탭 바 */
+.nav {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--nav-shadow);
+  z-index: 10;
+}
+
+.tab {
+  height: 48px;
+  padding: 0 15px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--nav-off-fg);
+  transition: background 0.2s;
+}
+
+.active {
+  background: var(--nav-on-bg);
+  color: var(--nav-on-fg);
+}
+
+.glyph {
+  font: 700 16px var(--font-jp);
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* PC: 왼쪽 메뉴 */
+@media (min-width: 900px) {
+  .shell {
+    display: flex;
+  }
+
+  .nav {
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    flex-direction: column;
+    gap: 6px;
+    height: 100dvh;
+    width: 200px;
+    padding: 28px 16px;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+
+  .tab {
+    border-radius: 14px;
+  }
+
+  .main {
+    flex: 1;
+    padding-bottom: 48px;
+  }
+}

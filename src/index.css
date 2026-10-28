@@ -1,0 +1,84 @@
+/* 테마 토큰: design/VocabSoft.dc.html, design/VocabMono.dc.html 기준 */
+:root,
+[data-theme='soft'] {
+  --bg: #eef0f6;
+  --surface: #fff;
+  --surface-2: #f2f4f9;
+  --text: #1d2033;
+  --text-2: #666b80;
+  --text-3: #8e94a8;
+  --accent: oklch(0.58 0.17 272);
+  --accent-strong: oklch(0.5 0.17 272);
+  --accent-soft: oklch(0.95 0.03 272);
+  --on-accent: #fff;
+  --nav-bg: rgba(255, 255, 255, 0.78);
+  --nav-on-bg: var(--accent);
+  --nav-on-fg: #fff;
+  --nav-off-fg: #666b80;
+  --nav-shadow: 0 12px 30px -12px rgba(40, 50, 110, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+  --radius: 20px;
+  --radius-card: 32px;
+  --card-shadow: 0 0 0 10px rgba(255, 255, 255, 0.45), 0 30px 60px -30px rgba(40, 50, 110, 0.35);
+  --card-back-bg: var(--accent);
+  --card-back-fg: #fff;
+  --card-back-sub: rgba(255, 255, 255, 0.7);
+  --card-back-meaning: oklch(0.92 0.05 272);
+  --track: #dfe3ee;
+  --hero-btn-bg: rgba(255, 255, 255, 0.22);
+  --hero-btn-fg: #fff;
+  --font-jp: 'M PLUS Rounded 1c', sans-serif;
+  color-scheme: light;
+}
+
+[data-theme='mono'] {
+  --bg: #0e0e0d;
+  --surface: #1a1a18;
+  --surface-2: #262624;
+  --text: #f3f1ec;
+  --text-2: #a19d95;
+  --text-3: #75716a;
+  --accent: oklch(0.88 0.19 125);
+  --accent-strong: oklch(0.88 0.19 125);
+  --accent-soft: oklch(0.3 0.06 125);
+  --on-accent: #0e0e0d;
+  --nav-bg: rgba(26, 26, 24, 0.85);
+  --nav-on-bg: #f3f1ec;
+  --nav-on-fg: #0e0e0d;
+  --nav-off-fg: rgba(243, 241, 236, 0.6);
+  --nav-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --radius: 14px;
+  --radius-card: 14px;
+  --card-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --card-back-bg: #f3f1ec;
+  --card-back-fg: #0e0e0d;
+  --card-back-sub: #75716a;
+  --card-back-meaning: oklch(0.45 0.14 130);
+  --track: #262624;
+  --hero-btn-bg: oklch(0.88 0.19 125);
+  --hero-btn-fg: #0e0e0d;
+  --font-jp: 'Zen Kaku Gothic New', sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}

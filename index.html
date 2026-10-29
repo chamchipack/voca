@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- 아이폰 홈 화면에 추가했을 때 앱처럼 열리게 한다 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="ことば" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#eef0f6" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,6 +19,7 @@
       try {
         var t = localStorage.getItem('voca-theme')
         if (t) document.documentElement.dataset.theme = t
+        if (t === 'mono') document.querySelector('meta[name="theme-color"]').content = '#0e0e0d'
       } catch (e) {}
     </script>
   </head>

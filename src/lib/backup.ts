@@ -1,4 +1,4 @@
-import { db } from '../db'
+import { db, saveSettings } from '../db'
 import { todayKey } from './daily'
 import { withSrsDefaults } from './srs'
 import type { DailySession, Progress, Settings, Word } from '../types'
@@ -17,6 +17,8 @@ export interface Backup {
 }
 
 export async function exportBackup() {
+  // 백업 파일에도 담기도록 내보내기 전에 기록한다
+  await saveSettings({ lastBackupAt: Date.now() })
   const backup: Backup = {
     app: APP,
     version: VERSION,

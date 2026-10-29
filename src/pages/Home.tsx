@@ -1,7 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { db, getSettings } from '../db'
+import { exportBackup } from '../lib/backup'
 import { dueWordIds, todayKey } from '../lib/daily'
+import { backupAgo, backupDue } from '../lib/storage'
 import styles from './Home.module.css'
 
 /** 홈은 오늘 배정을 만들지 않고 읽기만 한다. 배정은 학습 화면을 열 때 만들어진다 */
@@ -32,6 +35,8 @@ async function loadStats() {
     newTotal,
     reviewDone,
     reviewTotal,
+    backupDue: backupDue(settings, progress.length > 0),
+    lastBackupAt: settings.lastBackupAt,
     started:
       touched(today?.doneIds) ||
       touched(today?.wrongIds) ||
@@ -47,8 +52,21 @@ export default function Home() {
 
   if (!stats) return null
 
-  const { date, total, known, learning, studied, remaining, newDone, newTotal, reviewDone, reviewTotal, started } =
-    stats
+  const {
+    date,
+    total,
+    known,
+    learning,
+    studied,
+    remaining,
+    newDone,
+    newTotal,
+    reviewDone,
+    reviewTotal,
+    started,
+    backupDue,
+    lastBackupAt,
+  } = stats
   const todayDone = newDone + reviewDone
   const todayTotal = newTotal + reviewTotal
   const todayLeft = todayTotal - todayDone
@@ -61,6 +79,8 @@ export default function Home() {
         <span className={styles.brand}>ことばノート</span>
       </div>
       <h1 className={styles.title}>오늘도 조금씩</h1>
+
+      {backupDue && <BackupBanner lastBackupAt={lastBackupAt} />}
 
       {total === 0 ? (
         <Link className={styles.hero} to="/settings/import">
@@ -126,6 +146,30 @@ export default function Home() {
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+/** 학습 기록은 이 브라우저에만 있으므로 백업이 오래되면 권한다 */
+function BackupBanner({ lastBackupAt }: { lastBackupAt?: number }) {
+  const [busy, setBusy] = useState(false)
+  return (
+    <div className={styles.backup} role="status">
+      <div className={styles.backupText}>
+        <span className={styles.backupTitle}>백업할 때가 됐어요</span>
+        <span className={styles.backupSub}>{backupAgo(lastBackupAt)} · 기록은 이 기기에만 있어요</span>
+      </div>
+      <button
+        className={styles.backupBtn}
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true)
+          await exportBackup()
+          setBusy(false)
+        }}
+      >
+        지금 백업
+      </button>
     </div>
   )
 }

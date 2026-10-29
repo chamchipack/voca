@@ -66,6 +66,8 @@ export interface Settings {
   dailyNewCount: number
   pickMode: PickMode
   theme: Theme
+  /** 마지막으로 백업을 내보낸 시각. 오래되면 홈에서 백업을 권한다 */
+  lastBackupAt?: number
 }
 
 export const DEFAULT_SETTINGS: Settings = {

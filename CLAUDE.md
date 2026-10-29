@@ -22,6 +22,7 @@ JPT 900점을 목표로, 하루 새 단어 N개(기본 20, 설정에서 변경 �
 - `npm run dev` — 개발 서버 (http://localhost:5173, 휴대폰에서 보려면 `npm run dev -- --host`)
 - `npm run build` — 타입 체크 + `dist/`에 정적 빌드
 - `npm run lint` — oxlint
+- `npm run build && npm run preview` — 서비스 워커(오프라인) 확인용. 개발 서버에서는 서비스 워커가 동작하지 않음
 
 ## 폴더 구조
 - `src/types.ts` — Word / Progress / Settings 타입과 기본 설정
@@ -40,7 +41,11 @@ JPT 900점을 목표로, 하루 새 단어 N개(기본 20, 설정에서 변경 �
   - 모르겠어요: reps 0, 주기 1일(내일), ease −0.2(최소 1.3)
   - 상태: 주기 21일 이상이면 '외움', 그 전까지 '학습 중'
   - DB v3 마이그레이션과 예전 백업은 `withSrsDefaults`로 기본값을 채움
-- `src/lib/backup.ts` — JSON 백업 내보내기/불러오기(불러오기는 전체 덮어쓰기)
+- `src/lib/backup.ts` — JSON 백업 내보내기/불러오기(불러오기는 전체 덮어쓰기). 내보낼 때 `lastBackupAt` 기록
+- `src/lib/storage.ts` — 저장소 보호(`navigator.storage.persist()`, 앱 시작 시 요청), 홈 화면 앱 여부, 백업 알림 판단(학습 기록이 있고 7일 넘게 백업 안 했으면 홈에 띠 표시)
+- PWA: `vite-plugin-pwa`(vite.config.ts)로 manifest·서비스 워커 생성. 빌드 파일은 미리 캐시, 외부 글꼴은 처음 받을 때 캐시(CacheFirst). 새 버전은 자동 반영
+  - 아이콘: `public/pwa-*.png`, `public/apple-touch-icon.png`(보라 배경에 「語」). iOS 메타 태그와 상태바 색(`theme-color`, 테마 따라 변경)은 `index.html`·Layout
+  - 아이폰 홈 화면 앱은 Safari와 저장 공간이 따로라서 설정 화면에서 백업으로 옮기도록 안내
 - 설정 변경: 하루 개수·뽑는 방식은 오늘 아직 채점 전이면 오늘 배정을 다시 뽑고, 시작했으면 내일부터 적용. 테마는 `<html data-theme>`에 즉시 반영하고 깜빡임 방지용으로 localStorage에도 사본 저장
 - `src/lib/words.ts` — 단어 수정, 삭제(학습 기록도 함께 삭제)
 - `src/components/Sheet.tsx` — 아래에서 올라오는 시트(상세/편집에 사용)
@@ -56,7 +61,7 @@ JPT 900점을 목표로, 하루 새 단어 N개(기본 20, 설정에서 변경 �
 - **설정**: 하루 새 단어 수, 뽑는 방식, CSV 가져오기, JSON 백업 내보내기/불러오기, 테마(Soft/Mono)
 
 ## 다음 단계 후보 (지금 만들지 말 것)
-퀴즈, 발음 듣기(브라우저 TTS), 후리가나 토글, 오답 노트, 통계, 태그.
+퀴즈, 발음 듣기(브라우저 TTS, 설계 완료·보류 중), 후리가나 토글, 오답 노트, 통계, 태그.
 
 ## 데이터 구조
 - **단어(Word)**: id, word, reading, meaning, example(선택), memo(선택), order(CSV 행 번호)

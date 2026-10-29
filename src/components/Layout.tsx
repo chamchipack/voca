@@ -16,6 +16,8 @@ export default function Layout() {
   useEffect(() => {
     if (!theme) return
     document.documentElement.dataset.theme = theme
+    // 홈 화면 앱의 상단 상태바 색도 테마에 맞춘다
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'mono' ? '#0e0e0d' : '#eef0f6')
     try {
       localStorage.setItem('voca-theme', theme)
     } catch {

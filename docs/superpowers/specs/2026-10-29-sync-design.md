@@ -37,7 +37,7 @@
 ## 1. 데이터 구조
 
 ### 1.1 단어 키
-- `wordKey = word + '\u0000' + reading` (`importWords.ts`의 `keyOf`와 같은 기준, 공용 함수로 옮긴다)
+- `wordKey = JSON.stringify([word, reading])` (`importWords.ts`의 `keyOf`와 같은 기준. Postgres 텍스트는 `\u0000`을 저장할 수 없어서 JSON 배열 문자열로 만든다. 공용 함수로 옮긴다)
 - 기기 안의 `words.id`(`++id`)와 `progress.wordId`, `daily`의 id 배열은 그대로 숫자를 쓴다.
 - 동기화 레코드로 바꿀 때만 숫자 id ↔ 단어 키로 변환한다.
   - progress: 키 = 단어 키
@@ -94,6 +94,9 @@ alter table records enable row level security;  -- 정책 없음 = 직접 접근
 
 ### 1.6 충돌 규칙
 - 원격 레코드는 `remote.modifiedAt > max(local.modifiedAt, 같은 키 tombstone.modifiedAt)`일 때만 적용
+- **예외: 하루 배정(daily)** 은 진행량(새 단어·복습의 `doneIds`+`wrongIds` 개수)이 많은 쪽을 우선하고, 같을 때만 `modifiedAt`으로 정한다.
+  - 두 번째 기기가 받기 전에 학습 화면을 열면 빈 배정이 새 시각으로 만들어져 다른 기기의 진행을 덮을 수 있기 때문
+  - 로컬이 더 진행돼서 원격을 거절하면 로컬의 `modifiedAt`을 현재 시각으로 갱신해 다음 보내기에서 서버도 로컬 쪽으로 맞춘다
 - 원격 삭제 레코드도 같은 규칙으로 적용(로컬 단어 삭제 + 그 단어의 progress 삭제)
 - 서버도 `modified_at`이 더 클 때만 덮어씀
 
